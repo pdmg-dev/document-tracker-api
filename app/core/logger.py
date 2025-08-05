@@ -29,7 +29,7 @@ def get_logger(name: str) -> Logger:
 
         # File Handler
         file_handler = RotatingFileHandler(
-            "logs/app.log", maxBytes=5 * 1024 * 1024, backupCount=2
+            log_file, maxBytes=5 * 1024 * 1024, backupCount=2
         )
         file_handler.setFormatter(formatter)
         file_handler.setLevel(logger.level)
