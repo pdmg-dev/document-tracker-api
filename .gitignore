@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.env
+
+
+# Virtual Environment
+.venv/
+
+# Test & Coverage
+.coverage
+.pytest_cache/
+
+
+# Logs
+*.log
+logs/
+
+# DB
+*.db
+
+
