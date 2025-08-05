@@ -19,6 +19,7 @@ class Settings(BaseSettings):
 
     database_url: str
     sql_echo: bool
+    reset_table: bool
 
     jwt_secret: str
     jwt_algorithm: str
