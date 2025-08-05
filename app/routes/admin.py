@@ -1,6 +1,6 @@
 # app/routes/admin.py
 
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends
 
@@ -16,3 +16,9 @@ def create_user(
     admin_service: Annotated[AdminService, Depends(get_admin_service)],
 ):
     return admin_service.create_user(create_data)
+
+@router.get("/users", response_model=List[UserRead])
+def get_all_users(
+    admin_service: Annotated[AdminService, Depends(get_admin_service)],
+):
+    return admin_service.get_all_users()

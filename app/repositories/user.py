@@ -1,6 +1,6 @@
 # app/repositories/user.py
 
-from typing import Annotated
+from typing import Annotated, List, Optional
 
 from fastapi import Depends
 from sqlalchemy import select
@@ -20,9 +20,13 @@ class UserRepository:
         self.db_session.refresh(user)
         return user
 
-    def get_user(self, username: int) -> User:
+    def get_user(self, username: int) -> Optional[User]:
         statement = select(User).where(User.username == username)
-        return self.db_session.execute(statement).scalar_one_or_none()
+        return self.db_session.scalars(statement).one_or_none()
+
+    def get_all(self) -> List[User]:
+        statement = select(User).where(User.is_active.is_(True))
+        return self.db_session.scalars(statement).all()
 
 
 def get_user_repository(db_session: Annotated[Session, Depends(get_db)]) -> Session:
