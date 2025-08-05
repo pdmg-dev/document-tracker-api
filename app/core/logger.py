@@ -8,6 +8,21 @@ from pathlib import Path
 from .settings import settings
 
 
+class RelativePathFormatter(logging.Formatter):
+    def __init__(self, *args, root: Path = Path.cwd(), **kwargs):
+        super().__init__(*args, **kwargs)
+        self.root = root.resolve()
+
+    def format(self, record: logging.LogRecord) -> str:
+        full_path = Path(record.pathname).resolve()
+        try:
+            relative_path = full_path.relative_to(self.root)
+        except ValueError:
+            relative_path = full_path.name
+        record.filepath = str(relative_path)
+        return super().format(record)
+
+
 def get_logger(name: str) -> Logger:
     log_dir = Path(settings.log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -19,7 +34,9 @@ def get_logger(name: str) -> Logger:
     logger.setLevel(getattr(logging, log_level, logging.INFO))
 
     if not logger.handlers:
-        formatter = logging.Formatter(settings.log_format, datefmt=settings.log_datefmt)
+        formatter = RelativePathFormatter(
+            settings.log_format, datefmt=settings.log_datefmt
+        )
 
         # Console Handler
         console_handler = logging.StreamHandler()
