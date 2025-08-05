@@ -1,26 +1,23 @@
-import os
-
 import logging
 from logging import Logger
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
+from .settings import settings
+
 
 def get_logger(name: str) -> Logger:
-    log_dir = Path("logs")
+    log_dir = Path(settings.log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    log_file = log_dir / "app.log"
-    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    log_file = log_dir / settings.log_file
+    log_level = settings.log_level.upper()
 
     logger = logging.getLogger(name)
     logger.setLevel(getattr(logging, log_level, logging.INFO))
 
     if not logger.handlers:
-        formatter = logging.Formatter(
-            "%(asctime)s [%(levelname)s] (%(module)s.%(filename)s) → %(funcName)s() : Line %(lineno)d - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-        )
+        formatter = logging.Formatter(settings.log_format, datefmt=settings.log_datefmt)
 
         # Console Handler
         console_handler = logging.StreamHandler()
