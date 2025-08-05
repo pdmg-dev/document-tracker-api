@@ -1,3 +1,5 @@
+# app/core/settings.py
+
 from pydantic_settings import BaseSettings
 
 
