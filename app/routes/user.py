@@ -7,7 +7,7 @@ from ..schemas.token import Token
 from ..schemas.user import UserLogin
 from ..services.user import UserService, get_user_service
 
-router = APIRouter(prefix="/user", tags=["User"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/token", response_model=Token)
