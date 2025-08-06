@@ -1,18 +1,19 @@
-# app/routes/user.py
+# app/routes/auth.py
 
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
+
 from ..schemas.token import Token
-from ..schemas.user import UserLogin
-from ..services.user import UserService, get_user_service
+from ..services.auth import AuthService, get_auth_service
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/token", response_model=Token)
 def login(
-    login_data: UserLogin,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
-    return user_service.login_for_access_token(login_data)
+    return auth_service.login_for_access_token(form_data)
