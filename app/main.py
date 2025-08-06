@@ -3,9 +3,9 @@ from fastapi import FastAPI
 
 from .core.database import Base, engine
 from .core.logger import get_logger
-from .routes import admin
 from .core.settings import settings
 from .models.user import User
+from .routes import admin, user
 
 logger = get_logger(__name__)
 app = FastAPI()
@@ -23,6 +23,7 @@ def on_startup():
 
 
 app.include_router(admin.router)
+app.include_router(user.router)
 
 
 @app.get("/")
