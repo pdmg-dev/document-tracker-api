@@ -24,7 +24,11 @@ class DocumentCreate(DocumentBase):
 class DocumentRead(DocumentBase):
     id: int
     created_at: datetime
-    created_by: int  # TODO: Replace this with a nested UserRead if needed
+    created_by: int
+    is_deleted: bool
+    is_archived: bool
+    deleted_at: datetime | None = None
+    archived_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -36,3 +40,5 @@ class DocumentUpdate(BaseModel):
     amount: Decimal | None = Field(None, ge=0)
     originating_office: str | None = Field(None, max_length=100)
     current_status: DocumentStatus | None = None
+    is_deleted: bool | None = None
+    is_archived: bool | None = None

@@ -5,7 +5,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DECIMAL, DateTime, Enum, ForeignKey, String, func
+from sqlalchemy import (DECIMAL, Boolean, DateTime, Enum, ForeignKey, String,
+                        func)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..core.database import Base
@@ -39,6 +40,14 @@ class Document(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
+    # Soft delete and archive flags
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    archived_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
     # Foreign key
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
@@ -48,5 +57,6 @@ class Document(Base):
     def __repr__(self) -> str:
         return (
             f"<Document(id={self.id}, tracking_number='{self.tracking_number}', "
-            f"status='{self.current_status}', payee='{self.payee_name}')>"
+            f"status='{self.current_status}', payee='{self.payee_name}', "
+            f"deleted={self.is_deleted}, archived={self.is_archived})>"
         )
