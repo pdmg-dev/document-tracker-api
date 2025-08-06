@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
 from ..core.logger import get_logger
-from ..models.user import User
+from ..models.user import User, UserRole
 from ..repositories.user import UserRepository, get_user_repository
 from ..services.token import TokenService, get_token_service
 from ..utils import exceptions
@@ -46,4 +46,13 @@ def get_current_active_user(
         logger.info(f"Access denied: User '{current_user.username}' is inactive.")
         raise exceptions.bad_request("User account is inactive")
 
+    return current_user
+
+
+def get_current_admin_user(
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    if current_user.role != UserRole.admin:
+        logger.info(f"Access denied: User '{current_user.username}' is not an admin.")
+        raise exceptions.unauthorized("Admin access required")
     return current_user
