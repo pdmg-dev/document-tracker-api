@@ -1,16 +1,16 @@
-
 # app/routes/user.py
 
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-
+from ..schemas.token import Token
 from ..schemas.user import UserLogin
 from ..services.user import UserService, get_user_service
 
 router = APIRouter(prefix="/user", tags=["User"])
 
-@router.post("/login")
+
+@router.post("/token", response_model=Token)
 def login(
     login_data: UserLogin,
     user_service: Annotated[UserService, Depends(get_user_service)],
