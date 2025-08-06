@@ -2,20 +2,20 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..models.user import UserRole
 
 
 class UserCreate(BaseModel):
-    full_name: str
-    username: str
-    password: str
+    full_name: str = Field(..., max_length=100)
+    username: str = Field(..., min_length=3, max_length=50)
+    password: str = Field(..., min_length=8)
 
 
 class UserLogin(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., min_length=3)
+    password: str = Field(..., min_length=8)
 
 
 class UserRead(BaseModel):
