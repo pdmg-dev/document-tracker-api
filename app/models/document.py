@@ -1,62 +1,42 @@
 # app/models/document.py
 
-import enum
-from datetime import datetime
-from decimal import Decimal
-from typing import TYPE_CHECKING
-
-from sqlalchemy import (DECIMAL, Boolean, DateTime, Enum, ForeignKey, String,
-                        func)
+from datetime import datetime, timezone
+from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from ..core.database import Base
-
-if TYPE_CHECKING:
-    from ..models.user import User
-
-
-class DocumentStatus(str, enum.Enum):
-    received = "received"
-    processing = "processing"
-    approved = "released"
+from typing import List
+from app.core.database import Base
 
 
 class Document(Base):
     __tablename__ = "documents"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    tracking_number: Mapped[str] = mapped_column(
-        String(20), unique=True, index=True, nullable=False
-    )
-    document_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    payee_name: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
-    amount: Mapped[Decimal] = mapped_column(DECIMAL(12, 2), nullable=False)
-    originating_office: Mapped[str] = mapped_column(String(100), nullable=True)
 
-    current_status: Mapped[DocumentStatus] = mapped_column(
-        Enum(DocumentStatus), default=DocumentStatus.received, nullable=False
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    tracking_number: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    document_type: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    origin: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
 
-    # Soft delete and archive flags
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
-    archived_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    title: Mapped[str] = mapped_column(String(150), nullable=False)
+    description: Mapped[str] = mapped_column(String(500), nullable=True)
 
-    # Foreign key
+    current_status_id: Mapped[int] = mapped_column(ForeignKey("statuses.id"), nullable=False)
+
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    updated_by: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
 
-    # Relationship
-    creator: Mapped["User"] = relationship("User", back_populates="created_documents")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
-    def __repr__(self) -> str:
-        return (
-            f"<Document(id={self.id}, tracking_number='{self.tracking_number}', "
-            f"status='{self.current_status}', payee='{self.payee_name}', "
-            f"deleted={self.is_deleted}, archived={self.is_archived})>"
-        )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    creator = relationship("User", back_populates="documents_created", foreign_keys=[created_by])
+    updater = relationship("User", back_populates="documents_updated", foreign_keys=[updated_by])
+    current_status = relationship("Status", back_populates="documents")
+    status_history: Mapped[List["DocumentStatusHistory"]] = relationship(
+        "DocumentStatusHistory", back_populates="document", cascade="all, delete-orphan"
+    )
