@@ -1,12 +1,12 @@
 # app/schemas/token.py
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class Token(BaseModel):
-    access_token: str = Field(..., min_length=10)
-    token_type: str = Field(..., pattern="^bearer$")
+    access_token: str
+    token_type: str
 
 
 class TokenData(BaseModel):
-    username: str | None = Field(None, min_length=3)
+    username: str | None
