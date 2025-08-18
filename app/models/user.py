@@ -2,9 +2,11 @@
 
 import enum
 from datetime import datetime, timezone
+from typing import List
+
 from sqlalchemy import Boolean, DateTime, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import List
+
 from app.core.database import Base
 
 
@@ -31,11 +33,9 @@ class User(Base):
     )
 
     documents_created: Mapped[List["Document"]] = relationship(
-        "Document", back_populates="creator", foreign_keys="Document.created_by"
+        "Document", back_populates="creator", foreign_keys="Document.created_by", lazy="selectin"
     )
     documents_updated: Mapped[List["Document"]] = relationship(
-        "Document", back_populates="updater", foreign_keys="Document.updated_by"
+        "Document", back_populates="updater", foreign_keys="Document.updated_by", lazy="selectin"
     )
-    status_changes: Mapped[List["DocumentStatusHistory"]] = relationship(
-        "DocumentStatusHistory", back_populates="changed_by_user"
-    )
+    # status_changes: Mapped[List["DocumentStatusHistory"]] = relationship(back_populates="changed_by_user", lazy="selectin")
