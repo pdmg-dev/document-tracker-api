@@ -5,7 +5,7 @@ from logging import Logger
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-from .settings import settings
+from app.core.config import settings
 
 
 class RelativePathFormatter(logging.Formatter):
@@ -34,9 +34,7 @@ def get_logger(name: str) -> Logger:
     logger.setLevel(getattr(logging, log_level, logging.INFO))
 
     if not logger.handlers:
-        formatter = RelativePathFormatter(
-            settings.log_format, datefmt=settings.log_datefmt
-        )
+        formatter = RelativePathFormatter(settings.log_format, datefmt=settings.log_datefmt)
 
         # Console Handler
         console_handler = logging.StreamHandler()
@@ -44,9 +42,7 @@ def get_logger(name: str) -> Logger:
         console_handler.setLevel(logger.level)
 
         # File Handler
-        file_handler = RotatingFileHandler(
-            log_file, maxBytes=5 * 1024 * 1024, backupCount=2
-        )
+        file_handler = RotatingFileHandler(log_file, maxBytes=5 * 1024 * 1024, backupCount=2)
         file_handler.setFormatter(formatter)
         file_handler.setLevel(logger.level)
 

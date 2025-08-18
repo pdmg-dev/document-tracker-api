@@ -3,12 +3,14 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.logger import get_logger
-from ..models.user import User, UserRole
-from ..repositories.user import UserRepository, get_user_repository
-from ..services.token import TokenService, get_token_service
-from ..utils import exceptions
+from app.core.database import get_db
+from app.core.logger import get_logger
+from app.models.user import User, UserRole
+from app.repositories.user_repository import UserRepository
+from app.services.token_service import TokenService, get_token_service
+from app.utils import exceptions
 
 logger = get_logger(__name__)
 
@@ -24,13 +26,15 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return password_context.verify(plain_password, hashed_password)
 
 
-def get_current_user(
+async def get_current_user(
     token: str = Depends(oauth2_scheme),
     token_service: TokenService = Depends(get_token_service),
-    user_repository: UserRepository = Depends(get_user_repository),
+    session: AsyncSession = Depends(get_db),
 ) -> User:
     token_data = token_service.decode_token(token)
-    user = user_repository.get_user(token_data.username)
+
+    repo = UserRepository(session)
+    user = await repo.get_user(token_data.username)
 
     if user is None:
         logger.info(f"User lookup failed: '{token_data.username}' not found.")
@@ -39,7 +43,7 @@ def get_current_user(
     return user
 
 
-def get_current_active_user(
+async def get_current_active_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
     if not current_user.is_active:
@@ -49,10 +53,10 @@ def get_current_active_user(
     return current_user
 
 
-def get_current_admin_user(
+async def get_current_admin_user(
     current_user: User = Depends(get_current_active_user),
 ) -> User:
-    if current_user.role != UserRole.admin:
+    if current_user.role != UserRole.ADMIN:
         logger.info(f"Access denied: User '{current_user.username}' is not an admin.")
         raise exceptions.unauthorized("Admin access required")
     return current_user
