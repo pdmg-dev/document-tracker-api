@@ -2,9 +2,11 @@
 
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import String, Enum, DateTime
+from typing import TYPE_CHECKING, List
+
+from sqlalchemy import Boolean, DateTime, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import List
+
 from app.core.database import Base
 
 
@@ -22,12 +24,9 @@ class Status(Base):
     description: Mapped[str] = mapped_column(String(255), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    # Relationships
-    documents: Mapped[List["Document"]] = relationship("Document", back_populates="current_status")
-    histories_as_old: Mapped[List["DocumentStatusHistory"]] = relationship(
-        "DocumentStatusHistory", back_populates="old_status", foreign_keys="DocumentStatusHistory.old_status_id"
-    )
-    histories_as_new: Mapped[List["DocumentStatusHistory"]] = relationship(
-        "DocumentStatusHistory", back_populates="new_status", foreign_keys="DocumentStatusHistory.new_status_id"
-    )
+    documents: Mapped[List["Document"]] = relationship(back_populates="current_status", lazy="selectin")
+    # histories_as_old: Mapped[List["DocumentStatusHistory"]] = relationship( back_populates="old_status", lazy="selectin")
+    # histories_as_new: Mapped[List["DocumentStatusHistory"]] = relationship(back_populates="new_status", lazy="selectin")
