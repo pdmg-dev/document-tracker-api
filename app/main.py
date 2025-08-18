@@ -4,7 +4,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.routes import admin_route, auth_route, documents, statuses
+from app.api.routes import documents
+from app.api.routes.admin import statuses, users
+from app.api.routes.user import auth
 from app.core.database import Base, async_engine
 from app.core.logger import get_logger
 
@@ -33,10 +35,11 @@ app = FastAPI(
 
 
 # Register routers
+
 app.include_router(documents.router)
-app.include_router(statuses.router)
-app.include_router(admin_route.router)
-app.include_router(auth_route.router)
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+app.include_router(users.router, prefix="/admin", tags=["Admin-Users"])
+app.include_router(statuses.router, prefix="/admin", tags=["Admin-Statuses"])
 
 
 @app.get("/")

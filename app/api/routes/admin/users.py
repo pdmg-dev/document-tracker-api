@@ -10,7 +10,7 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserRead, UserUpdate
 from app.services.admin_service import AdminService
 
-router = APIRouter(prefix="/admin", tags=["Admin"])
+router = APIRouter()
 
 
 @router.post("/users", response_model=UserRead, status_code=status.HTTP_201_CREATED)

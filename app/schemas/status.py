@@ -1,6 +1,7 @@
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict
 import enum
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict
 
 
 class StatusCategory(str, enum.Enum):
@@ -27,5 +28,10 @@ class StatusUpdate(BaseModel):
 class StatusRead(StatusBase):
     id: int
     created_at: datetime
+    is_active: bool
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class StatusDelete(BaseModel):
+    is_active: bool

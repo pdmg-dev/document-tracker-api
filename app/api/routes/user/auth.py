@@ -9,7 +9,7 @@ from app.api.dependencies import get_auth_service
 from app.schemas.token import Token
 from app.services.auth_service import AuthService
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter()
 
 
 @router.post("/token", response_model=Token)
