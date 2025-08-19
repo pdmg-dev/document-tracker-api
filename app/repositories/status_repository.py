@@ -27,6 +27,11 @@ class StatusRepository:
         stmt = select(Status).where(Status.id == status_id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+    
+    async def get_by_name(self, name: str) -> Optional[Status]:
+        stmt = select(Status).where(Status.name == name)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
     async def update(self, status: Status) -> Status:
         await self.session.commit()

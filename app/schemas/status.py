@@ -24,6 +24,8 @@ class StatusUpdate(BaseModel):
     category: StatusCategory | None = None
     description: str | None = None
 
+class CurrentStatusRead(StatusBase):
+    pass
 
 class StatusRead(StatusBase):
     id: int
