@@ -4,8 +4,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.routes import documents
-from app.api.routes.admin import statuses, users
+import init_db
+from app.api.routes.admin import custom_fields, document_types, statuses, users
+from app.api.routes.document import documents
 from app.api.routes.user import auth
 from app.core.database import Base, async_engine
 from app.core.logger import get_logger
@@ -19,9 +20,7 @@ async def lifespan(app: FastAPI):
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database tables created (if not exist)")
-
     yield  # <-- App is running here
-
     # Shutdown
     await async_engine.dispose()
     logger.info("Database connection closed")
@@ -34,12 +33,13 @@ app = FastAPI(
 )
 
 
-# Register routers
-
-app.include_router(documents.router)
+app.include_router(documents.router, prefix="/documents", tags=["Documents"])
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
-app.include_router(users.router, prefix="/admin", tags=["Admin-Users"])
-app.include_router(statuses.router, prefix="/admin", tags=["Admin-Statuses"])
+app.include_router(users.router, prefix="/admin", tags=["Admin - Users"])
+app.include_router(statuses.router, prefix="/admin", tags=["Admin - Statuses"])
+app.include_router(document_types.router, prefix="/admin", tags=["Admin - Document Types"])
+app.include_router(custom_fields.router, prefix="/admin", tags=["Admin -  Custom Fields"])
+
 
 
 @app.get("/")
