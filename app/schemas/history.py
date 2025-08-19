@@ -1,6 +1,8 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
 from typing import Optional
+
+from pydantic import BaseModel, ConfigDict
+
 from app.schemas.status import StatusRead
 from app.schemas.user import UserRead
 
@@ -14,9 +16,9 @@ class HistoryCreate(HistoryBase):
     old_status_id: Optional[int] = None
     new_status_id: int
     changed_by: int
+    data_snapshot: Optional[dict] = None
 
 
-# Slim version (for listing quickly)
 class HistoryRead(BaseModel):
     id: int
     new_status: StatusRead
@@ -26,7 +28,7 @@ class HistoryRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-# Full detail (used for "view document details")
 class HistoryDetail(HistoryRead):
     old_status: Optional[StatusRead] = None
     remarks: Optional[str] = None
+    data_snapshot: Optional[dict] = None

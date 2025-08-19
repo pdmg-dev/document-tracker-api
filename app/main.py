@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 import init_db
 from app.api.routes.admin import custom_fields, document_types, statuses, users
-from app.api.routes.document import documents
+from app.api.routes.document import documents, histories
 from app.api.routes.user import auth
 from app.core.database import Base, async_engine
 from app.core.logger import get_logger
@@ -39,6 +39,7 @@ app.include_router(users.router, prefix="/admin", tags=["Admin - Users"])
 app.include_router(statuses.router, prefix="/admin", tags=["Admin - Statuses"])
 app.include_router(document_types.router, prefix="/admin", tags=["Admin - Document Types"])
 app.include_router(custom_fields.router, prefix="/admin", tags=["Admin -  Custom Fields"])
+app.include_router(histories.router, prefix="/history", tags=["History"])
 
 
 
