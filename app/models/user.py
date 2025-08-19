@@ -38,4 +38,6 @@ class User(Base):
     documents_updated: Mapped[List["Document"]] = relationship(
         "Document", back_populates="updater", foreign_keys="Document.updated_by", lazy="selectin"
     )
-    # status_changes: Mapped[List["DocumentStatusHistory"]] = relationship(back_populates="changed_by_user", lazy="selectin")
+    status_changes: Mapped[List["DocumentHistory"]] = relationship(
+        "DocumentHistory", back_populates="changed_by_user", lazy="selectin"
+    )

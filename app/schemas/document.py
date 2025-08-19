@@ -12,8 +12,10 @@ class DocumentBase(BaseModel):
     document_type_id: int
     data: Dict[str, Any]  # TODO: Refine this later with stricter validation
 
+
 class DocumentCreate(DocumentBase):
     model_config = ConfigDict(extra="forbid")
+
 
 class DocumentUpdate(BaseModel):
     data: Optional[Dict[str, Any]] = None
@@ -21,6 +23,8 @@ class DocumentUpdate(BaseModel):
     updated_by: Optional[int] = None
     is_active: Optional[bool] = None
     is_archived: Optional[bool] = None
+    remarks: Optional[str] = None
+
 
 # Slim version (for listing quickly or dashboard)
 class DocumentRead(DocumentBase):
@@ -36,7 +40,7 @@ class DocumentRead(DocumentBase):
 # Full detail (used for "view document details")
 class DocumentDetail(DocumentRead):
     is_active: Optional[bool] = None
-    is_archived: Optional[bool] = None 
+    is_archived: Optional[bool] = None
     creator: Optional[UserRead] = None
     updater: Optional[UserRead] = None
     updated_at: datetime

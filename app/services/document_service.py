@@ -11,6 +11,8 @@ from app.repositories.document_repository import DocumentRepository
 from app.repositories.document_type_repository import DocumentTypeRepository
 from app.repositories.status_repository import StatusRepository
 from app.schemas.document import DocumentCreate, DocumentUpdate
+from app.schemas.history import HistoryCreate
+from app.services.history_service import HistoryService
 from app.utils import exceptions
 
 logger = get_logger(__name__)
@@ -23,11 +25,13 @@ class DocumentService:
         custom_field_repository: CustomFieldRepository,
         document_repository: DocumentRepository,
         status_repository: StatusRepository,
+        history_service: HistoryService,
     ):
         self.document_type_repository = document_type_repository
         self.custom_field_repository = custom_field_repository
         self.document_repository = document_repository
         self.status_repository = status_repository
+        self.history_service = history_service
 
     async def _validate_data(self, document_type_id: int, data: Dict[str, Any]) -> None:
         fields = await self.custom_field_repository.get_all_by_document_type(document_type_id)
@@ -93,18 +97,34 @@ class DocumentService:
         documents = await self.document_repository.get_all()
         return documents
 
-    async def update_document(self, document_id: int, updates: DocumentUpdate) -> Document:
+    async def update_document(self, user_id: int, document_id: int, updates: DocumentUpdate) -> Document:
         document = await self.get_document(document_id)
         logger.info(f"Updating document {document_id} with fields: {updates.model_dump(exclude_unset=True)}")
+
+        old_status_id = document.current_status_id
+
         if updates.data:
             await self._validate_data(document.document_type_id, updates.data)
             document.data = {**document.data, **updates.data}
 
         for field, value in updates.model_dump(exclude_unset=True).items():
-            if field != "data":
+            if field not in ("data", "remarks"):
                 setattr(document, field, value)
 
-        return await self.document_repository.update(document)
+        updated_document = await self.document_repository.update(document)
+
+        if old_status_id != updated_document.current_status_id:
+            history = HistoryCreate(
+                document_id=document.id,
+                old_status_id=old_status_id,
+                new_status_id=updated_document.current_status_id,
+                changed_by=user_id,
+                remarks=updates.remarks,
+                data_snapshot=document.data,
+            )
+            await self.history_service.create_history_entry(history)
+
+        return updated_document
 
     async def delete_document(self, document_id: int) -> None:
         document = await self.get_document(document_id)

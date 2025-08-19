@@ -46,7 +46,7 @@ async def update_document(
     current_user: User = Depends(get_current_active_user),
     service: DocumentService = Depends(get_document_service),
 ):
-    return await service.update_document(document_id, updates)
+    return await service.update_document(current_user.id, document_id, updates)
 
 
 @router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)

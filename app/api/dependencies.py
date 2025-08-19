@@ -4,12 +4,24 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.repositories import (custom_field_repository, document_repository,
-                              document_type_repository, status_repository,
-                              user_repository)
-from app.services import (auth_service, custom_field_service, document_service,
-                          document_type_service, status_service, token_service,
-                          user_service)
+from app.repositories import (
+    custom_field_repository,
+    document_repository,
+    document_type_repository,
+    status_repository,
+    user_repository,
+    history_repository,
+)
+from app.services import (
+    auth_service,
+    custom_field_service,
+    document_service,
+    document_type_service,
+    status_service,
+    token_service,
+    user_service,
+    history_service,
+)
 from app.services.token_service import get_token_service
 
 
@@ -52,4 +64,10 @@ def get_document_service(
     field_repo = custom_field_repository.CustomFieldRepository(session)
     doc_repo = document_repository.DocumentRepository(session)
     status_repo = status_repository.StatusRepository(session)
-    return document_service.DocumentService(doc_type_repo, field_repo, doc_repo, status_repo)
+    doc_history = history_service.HistoryService(history_repository.HistoryRepository(session))
+    return document_service.DocumentService(doc_type_repo, field_repo, doc_repo, status_repo, doc_history)
+
+
+def get_history_service(session: AsyncSession = Depends(get_db)) -> history_service.HistoryService:
+    repo = history_repository.HistoryRepository(session)
+    return history_service.HistoryService(repo)

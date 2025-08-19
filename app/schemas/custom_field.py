@@ -1,13 +1,13 @@
 # app/schemas/custom_field.py
 
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from pydantic import BaseModel, ConfigDict
 
 
 class CustomFieldBase(BaseModel):
     name: str
-    field_type: str # TODO: Consider using Literal for stricter typing
+    field_type: Literal["boolean", "string", "integer", "float"]
     required: bool = False
     options: Optional[List[str]] = None
 
@@ -18,8 +18,7 @@ class CustomFieldCreate(CustomFieldBase):
 
 class CustomFieldUpdate(BaseModel):
     name: Optional[str] = None
-    field_type: Optional[str] = None  # TODO: Consider using Literal for stricter typing
-    required: Optional[bool] = None
+    field_type: Optional[Literal["boolean", "string", "integer", "float"]] = None
     options: Optional[List[str]] = None
 
 

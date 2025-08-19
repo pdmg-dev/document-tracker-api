@@ -24,9 +24,13 @@ class Status(Base):
     description: Mapped[str] = mapped_column(String(255), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    
+
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    documents: Mapped[List["Document"]] = relationship(back_populates="current_status", lazy="selectin")
-    # histories_as_old: Mapped[List["DocumentStatusHistory"]] = relationship( back_populates="old_status", lazy="selectin")
-    # histories_as_new: Mapped[List["DocumentStatusHistory"]] = relationship(back_populates="new_status", lazy="selectin")
+    documents: Mapped[List["Document"]] = relationship("Document", back_populates="current_status", lazy="selectin")
+    histories_as_old: Mapped[List["DocumentHistory"]] = relationship(
+        "DocumentHistory", back_populates="old_status", foreign_keys="DocumentHistory.old_status_id", lazy="selectin"
+    )
+    histories_as_new: Mapped[List["DocumentHistory"]] = relationship(
+        "DocumentHistory", back_populates="new_status", foreign_keys="DocumentHistory.new_status_id", lazy="selectin"
+    )
