@@ -8,7 +8,7 @@ from app.api.dependencies import get_admin_service
 from app.core.security import get_current_admin_user
 from app.models.user import User
 from app.schemas.user import UserCreate, UserRead, UserUpdate
-from app.services.admin_service import AdminService
+from app.services.user_service import AdminService
 
 router = APIRouter()
 

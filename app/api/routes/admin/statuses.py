@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies import get_status_service
 from app.core.security import get_current_admin_user
+from app.models.user import User
 from app.schemas.status import StatusCreate, StatusRead, StatusUpdate
 from app.services.status_service import StatusService
-from app.models.user import User
 
 router = APIRouter()
 
